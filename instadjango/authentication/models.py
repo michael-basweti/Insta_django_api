@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import (
     BaseUserManager, AbstractBaseUser
 )
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 class MyUserManager(BaseUserManager):
@@ -70,3 +72,17 @@ class MyUser(AbstractBaseUser):
         "Is the user a member of staff?"
         # Simplest possible answer: All admins are staff
         return self.is_admin
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(MyUser, on_delete=models.CASCADE)
+    date_of_birth = models.DateField(default=None, blank=True, null=True)
+    username = models.CharField(max_length=100)
+    bio = models.TextField(max_length=250, default='Update your bio')
+    image_url = models.URLField(max_length=250, default="image-url", null=True)
+
+@receiver(post_save, sender=MyUser)
+def create_save_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+        instance.profile.save()
