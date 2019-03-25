@@ -35,6 +35,8 @@ class UserSerializer(serializers.ModelSerializer):
             'max_length': 'Password cannot be more than 128 characters'
         }
     )
+    posts = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    # posts = serializers.HyperlinkedRelatedField(many=True, read_only=True, view_name="posts:post_create_view")
    
     class Meta:
         model = MyUser
@@ -42,7 +44,8 @@ class UserSerializer(serializers.ModelSerializer):
             'id',
             'email',
             'full_name',
-            'password'
+            'password',
+            'posts'
         )
         extra_kwargs = {'password':{'write_only':True}}
 
