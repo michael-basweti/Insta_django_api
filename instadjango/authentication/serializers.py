@@ -1,4 +1,4 @@
-from .models import MyUser
+from .models import MyUser, Profile
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework.authtoken.models import Token
@@ -55,3 +55,35 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         Token.objects.create(user=user)
         return user
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    # username = serializers.RegexField(
+    #     regex='^(?!.*\ )[A-Za-z\d\-\_]+$',
+    #     min_length=4,
+    #     required=True,
+    #     source='user.username',
+    #     validators=[
+    #         UniqueValidator(
+    #             queryset=Profile.objects.all(),
+    #             message='Username must be unique',
+    #         )
+    #     ],
+    #     error_messages={
+    #         'invalid': 'Username cannot have a space',
+    #         'required': 'Username is required',
+    #         'min_length': 'Username must have at least 4 characters'
+    #     }
+    # )
+
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop('user', None)
+        super().update(instance, validated_data)
+        if user_data is not None and user_data.get('user_id') is not None:
+            instance.user.username = user_data.get('user_id')
+            instance.user.save()
+        return instance
+
+    class Meta:
+        model = Profile
+        fields = '__all__'
