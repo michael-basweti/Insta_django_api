@@ -14,7 +14,7 @@ class PostSerializer(serializers.ModelSerializer):
             'required': 'Body is required'
         }
     )
-    author = serializers.ReadOnlyField(source='owner.id')
+    author = serializers.ReadOnlyField(source='author.id')
 
     class Meta:
         model = Post
